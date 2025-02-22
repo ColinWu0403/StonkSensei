@@ -1,4 +1,5 @@
 import modal
+import json
 
 # Load the deployed function
 analyze_sentiment = modal.Function.from_name("finbert-sentiment", "analyze_sentiment")
@@ -14,7 +15,8 @@ reddit_texts = [
 ]
 
 # Call the hosted FinBERT model
-results = analyze_sentiment.call(reddit_texts)
+results = analyze_sentiment.remote(reddit_texts)
 
-# Print results
-print(results)
+# save results in .json file
+with open('LLM_Outputs/sentiment_results.json', 'w') as f:
+    json.dump(results, f, indent=4)  # Write results to file with pretty formatting

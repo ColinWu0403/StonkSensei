@@ -16,6 +16,7 @@
 # next.js
 /.next/
 /out/
+.next
 
 # production
 /build
@@ -43,3 +44,6 @@ next-env.d.ts
 
 /stonksensei/node_modules
 /stonksensei/.next
+
+# data
+*.json
