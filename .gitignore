@@ -46,5 +46,7 @@ next-env.d.ts
 /stonksensei/node_modules
 /stonksensei/.next
 
+LLM_Outputs
+
 # data
 Data/*.json
