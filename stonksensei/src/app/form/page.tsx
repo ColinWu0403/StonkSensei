@@ -7,7 +7,7 @@ export default function FormPage() {
   return (
     <div className="flex flex-col min-h-screen relative">
       <Header />
-      <main className="flex-grow relative z-10 bg-gradient-to-b from-gray-900 to-black">
+      <main className="flex-grow relative z-10 bg-gradient-to-b from-gray-900 to-neutral">
         <div className="container mx-auto px-4 py-12 md:py-24 lg:py-32 xl:py-48 flex flex-col items-center">
           <div className="text-center mb-12 max-w-3xl w-full">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white mb-6">
