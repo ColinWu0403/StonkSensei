@@ -25,3 +25,12 @@ def get_atr(ticker: str, interval: str = "monthly", time_period: int = 60):
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
     return response.json()
+
+def get_sentiment(ticker: str, limit: int):
+    """
+    Get Market Sentiment & Analysis data from AlphaVantage.
+    """
+    url = f'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={ticker}&limit={limit}&datatype=json&apikey={API_KEY}'
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
+    return response.json()
