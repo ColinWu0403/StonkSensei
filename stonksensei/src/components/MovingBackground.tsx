@@ -77,6 +77,10 @@ const MovingColumn = ({ columnIndex }: { columnIndex: number }) => {
 export const MovingBackground = () => {
   const columns = 10;
 
+  // background-color: #b2e911;
+  // background-image: linear-gradient(97deg, #b2e911 0%, #1d1d1d 98%, #1d1d1d 100%);
+  
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-neutral">
       {Array.from({ length: columns }).map((_, columnIndex) => (
