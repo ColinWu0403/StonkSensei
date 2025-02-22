@@ -3,20 +3,18 @@ import pandas as pd
 
 API_KEY = "8ECXT5T3UWTOADCX"
 
+ticker = "AAPL"
+
 # market & sentiment analysis
-msa_url = f'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=AAPL&apikey={API_KEY}'
-msa_request = requests.get(msa_url)
-msa_data = msa_request.json()
-msa_df = pd.dataFrame(msa_data['changeme!!!!!!!!!!!!!!!!'])
-msa_df.to_csv()
+# uncomment after we talk about how we want to incorporate this market & sentiment analysis data
+#
+# msa_url = f'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={ticker}&datatype=csv&apikey={API_KEY}'
+# msa_response = requests.get(msa_url)
+# with open(f'Data/{ticker}_intraday.csv', "w") as file:
+#     file.write(msa_response.text)
 
-print(msa_data)
-
-intraday_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=IBM&outputsize=full&interval=60min&apikey={API_KEY}'
-intraday_request = requests.get(intraday_url)
-intraday_data = intraday_request.json()
-intraday_df = pd.dataFrame(intraday_data['changeme!!!!!!!!!!!!!!!!'])
-intraday_df.to_csv()
-
-print(intraday_data)
-
+# intraday
+intraday_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&outputsize=full&interval=60min&datatype=csv&apikey={API_KEY}'
+intraday_response = requests.get(intraday_url)
+with open(f'Data/{ticker}_intraday.csv', "w") as file:
+    file.write(intraday_response.text)
