@@ -43,3 +43,6 @@ yarn-error.log*
 next-env.d.ts
 
 /stonksensei/node_modules
+
+# data
+.json
