@@ -9,7 +9,6 @@ from fake_useragent import UserAgent
 URL = "https://www.reddit.com/r/wallstreetbets/top/?t=month"
 SCROLL_PAUSE_TIME = 2
 NUM_SCROLLS = 2
-SLEEP_MS = 0
 
 def parse_urls(url_list):
     result = []
@@ -54,7 +53,6 @@ def scrape_posts(urls):
     posts = []
     for url in urls:
         posts.append(scrape_post(url))
-        #time.sleep(SLEEP_MS)
     return posts
 
 # Takes post url and extracts data
@@ -74,14 +72,15 @@ def scrape_post(url):
     post_title_element = soup.find("a", class_="title")
     if post_title_element:
         post_title = post_title_element.text
+    post_title += "\n"
     
     # Extract post
-    result = soup.find_all('p')
-    sentences = []
-    for i in range(18, len(result)):
-        if result[i].text == "Post a comment!":
+    paragraphs = soup.find_all('p')
+    body = ""
+    for i in range(18, len(paragraphs)):
+        if paragraphs[i].text == "Post a comment!":
             break
-        sentences.append(result[i].text)
+        body += paragraphs[i].text + "\n"
 
     # Extract upvotes
     result = soup.find('div', class_="score")
@@ -93,18 +92,38 @@ def scrape_post(url):
     num_comments = comment_text.split()[1]
 
     return {
-        'title': post_title,
-        'body': sentences,
+        'text': post_title + body,
         'upvotes': upvotes,
         'num_comments': num_comments,
+        'error': False,
     }
     
+def scrape_reddit():
+    urls = scrape_urls()
+    posts = scrape_posts(urls)
+    return posts
 
-# Tests for script
-#time.sleep(2)
-#print(scrape_post("https://old.reddit.com/r/wallstreetbets/comments/1igaaox/deepseek_reportedly_has_50000_nvidia_gpus_and/"))
-#time.sleep(2)
-#print(scrape_post("https://old.reddit.com/r/wallstreetbets/comments/1ip9ns8/flip_it/"))
-urls = scrape_urls()
-posts = scrape_posts(urls)
-print(posts)
+def get_reddit_engagement(ticker):
+    posts = scrape_reddit()
+    num_posts = len(posts)
+    post_text = []
+    mentions = 0
+    total_upvotes = 0
+    total_comments = 0
+    for post in posts:
+        if post['error']:
+            num_posts -= 1
+            continue
+        if ticker.upper() in post['text'].upper():
+            mentions += 1
+            total_upvotes += post['upvotes']
+            total_comments += post['num_comments']
+        post_text.append(post['text'])
+    
+    return {
+        'posts': post_text,
+        'mentions': mentions,
+        'upvotes': total_upvotes,
+        'comments': total_comments,
+        'total_posts': num_posts,
+    }
