@@ -2,97 +2,68 @@ import modal
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
-# Define the Modal App
-app = modal.App(name="stonksensei-recommender")
-
+app = modal.App(name="stonksensei-core")
 image = modal.Image.debian_slim().pip_install(
     "torch", 
     "transformers",
-    "accelerate",
-    "bitsandbytes"  # For 4-bit quantization
+    "accelerate"
 )
 
-# Model configuration
-SMALL_MODEL = "deepseek-ai/deepseek-moe-16b-chat"  # Efficient for search
-LARGE_MODEL = "deepseek-ai/DeepSeek-R1-Distill-Llama-70B"  # Powerful for analysis
+MODEL_NAME = "deepseek-ai/DeepSeek-R1-Distill-Llama-70B"
 
-def load_models():
-    """Load both models with different quantization strategies"""
-    # Small model - 4-bit quantized for efficiency
-    small_tokenizer = AutoTokenizer.from_pretrained(SMALL_MODEL)
-    small_model = AutoModelForCausalLM.from_pretrained(
-        SMALL_MODEL,
-        device_map="auto",
-        load_in_4bit=True,
-        torch_dtype=torch.bfloat16
-    )
-    
-    # Large model - 8-bit quantized for balance
-    large_tokenizer = AutoTokenizer.from_pretrained(LARGE_MODEL)
-    large_model = AutoModelForCausalLM.from_pretrained(
-        LARGE_MODEL,
+def load_model():
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME,
         device_map="auto",
         load_in_8bit=True,
         torch_dtype=torch.bfloat16
     )
-    
-    return (small_tokenizer, small_model), (large_tokenizer, large_model)
+    return tokenizer, model
 
-@app.function(image=image, gpu="A100", timeout=300)
+@app.function(image=image, gpu="A100")
 def generate_recommendation(user_prompt: str, stock_data: dict, whitelist: list, blacklist: list):
-    # Load both models
-    (small_tok, small_model), (large_tok, large_model) = load_models()
+    tokenizer, model = load_model()
     
-    # 1. News search with small model --------------------------------------------------
-    news_prompt = f"""Generate search queries to find recent news about {stock_data['ticker']} stock. 
-    Focus on: market trends, earnings reports, and analyst opinions from the last week."""
+    category = categorize_stock(stock_data, blacklist)
     
-    news_inputs = small_tok(news_prompt, return_tensors="pt").to(small_model.device)
-    news_queries = small_model.generate(
-        news_inputs,
-        max_new_tokens=100,
-        temperature=0.3
-    )
-    decoded_queries = small_tok.decode(news_queries[0], skip_special_tokens=True)
+    system_prompt = f"""You are StonkSensei, a financial AI assistant. Analyze stocks based on:
+- Risk Score: {stock_data['risk']} ({get_risk_level(stock_data['risk'])})
+- Sentiment Score: {stock_data['sentiment']}/10
+- Hype Score: {stock_data['hype']}/10
+- Category: {category}
+
+Decision Rules:
+{decision_tree_rules()}
+
+User Preferences:
+- Whitelist: {', '.join(whitelist)}
+- Blacklist: {', '.join(blacklist)}
+- Prompt: {user_prompt}"""
+
+    inputs = tokenizer.apply_chat_template(
+        [{"role": "system", "content": system_prompt}],
+        return_tensors="pt"
+    ).to(model.device)
     
-    # 2. Get news results (simulated) --------------------------------------------------
-    news_results = simulate_news_search(decoded_queries)  # Replace with real API calls
-    
-    # 3. Main analysis with large model ------------------------------------------------
-    analysis_prompt = f"""Analyze {stock_data['ticker']} stock considering:
-    - User question: {user_prompt}
-    - Key metrics: {stock_data}
-    - Recent news: {news_results}
-    - Whitelist/Blacklist: {whitelist}/{blacklist}
-    
-    Provide detailed analysis with recommendations."""
-    
-    analysis_inputs = large_tok(analysis_prompt, return_tensors="pt").to(large_model.device)
-    analysis_output = large_model.generate(
-        analysis_inputs,
+    outputs = model.generate(
+        inputs,
         max_new_tokens=512,
-        temperature=0.7
+        temperature=0.7,
+        do_sample=True
     )
     
     return format_output(
-        stock_data, 
-        large_tok.decode(analysis_output[0], skip_special_tokens=True),
-        news_results
+        stock_data,
+        category,
+        tokenizer.decode(outputs[0], skip_special_tokens=True)
     )
 
-def simulate_news_search(queries: str):
-    """Replace this with actual news API calls using the generated queries"""
-    return [
-        {"source": "Bloomberg", "summary": "Company announces record earnings"},
-        {"source": "WSJ", "summary": "New product launch delayed"}
-    ]
-
-def format_output(stock_data: dict, analysis: str, news: list):
+def format_output(stock_data, category, analysis):
     return {
         "ticker": stock_data["ticker"],
-        "category": categorize_stock(stock_data, []),
-        "analysis": clean_analysis(analysis),
-        "news": news,
+        "category": category,
+        "analysis": clean_response(analysis),
         "metrics": stock_data
     }
 
@@ -148,7 +119,7 @@ def clean_response(text: str) -> str:
     # This example assumes a token like '[/INST]' might be in the output.
     return text.split("[/INST]")[-1].strip()
 
-# Example usage for local testing (will run on Modal when deployed)
+# Example usage remains the same
 if __name__ == "__main__":
     stock_data_example = {
         "ticker": "AAPL",
@@ -157,13 +128,10 @@ if __name__ == "__main__":
         "hype": 6.5
     }
     
-    user_prompt_example = "Should I invest in AAPL for long-term growth?"
-    
     result = generate_recommendation.remote(
-        user_prompt=user_prompt_example,
+        user_prompt="Should I invest in AAPL for long-term growth?",
         stock_data=stock_data_example,
         whitelist=["AAPL", "MSFT"],
         blacklist=["TSLA"]
     )
-    
     print(result)
