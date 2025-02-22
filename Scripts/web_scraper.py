@@ -1,11 +1,7 @@
 import time
 import re
 import requests
-import subprocess
-import sys
-import string
 from bs4 import BeautifulSoup
-import selenium
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.by import By
 
@@ -24,6 +20,7 @@ def parse_urls(url_list):
     result.pop(0)
     return result
 
+# Extracts urls from main page
 def scrape_urls():
     browser_options = ChromeOptions()
     browser_options.headless = True
@@ -51,6 +48,7 @@ def scrape_urls():
         
     return parse_urls(scrape_list)
 
+# Takes list of urls and extracts post data
 def scrape_posts(urls):
     posts = []
     for url in urls:
@@ -58,6 +56,7 @@ def scrape_posts(urls):
         time.sleep(SLEEP_MS)
     return posts
 
+# Takes post url and extracts data
 def scrape_post(url):
     page = requests.get(url)
     soup = BeautifulSoup(page.text, features='html.parser')
@@ -98,11 +97,7 @@ def scrape_post(url):
     }
     
 
-#urls = scrape_urls()
-#print(scrape_posts(urls))
-
-#print(scrape_post("https://www.reddit.com/r/wallstreetbets/comments/1ip9ns8/flip_it/"))
-#print(scrape_post("https://www.reddit.com/r/wallstreetbets/comments/1igaaox/deepseek_reportedly_has_50000_nvidia_gpus_and/"))
+# Tests for script
 time.sleep(30)
 print(scrape_post("https://old.reddit.com/r/wallstreetbets/comments/1igaaox/deepseek_reportedly_has_50000_nvidia_gpus_and/"))
 time.sleep(30)
