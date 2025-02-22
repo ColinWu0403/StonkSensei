@@ -1,9 +1,10 @@
 import requests
 import pandas as pd
+import json
 
 API_KEY = "8ECXT5T3UWTOADCX"
 
-ticker = "AAPL"
+tickers = ["AAPL"]
 
 # market & sentiment analysis
 # uncomment after we talk about how we want to incorporate this market & sentiment analysis data
@@ -13,8 +14,22 @@ ticker = "AAPL"
 # with open(f'Data/{ticker}_intraday.csv', "w") as file:
 #     file.write(msa_response.text)
 
-# intraday
-intraday_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&outputsize=full&interval=60min&datatype=csv&apikey={API_KEY}'
-intraday_response = requests.get(intraday_url)
-with open(f'Data/{ticker}_intraday.csv', "w") as file:
-    file.write(intraday_response.text)
+# fundamental data api -- company overview (gets data containing beta)
+for ticker in tickers:
+    beta_url = f'https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey=demo{API_KEY}'
+    beta_response = requests.get(beta_url)
+    beta_json = beta_response.json()
+
+    print(beta_json)
+    with open(f'Data/{ticker}_fundamental_data.json', "w") as file:
+        json.dump(beta_json, file, indent=4)
+
+# technical indicators api -- ATR (gets ATR--average true range)
+for ticker in tickers:
+    atr_url = f'https://www.alphavantage.co/query?function=ATR&symbol={ticker}&interval=monthly&time_period=60&apikey=demo{API_KEY}'
+    atr_response = requests.get(atr_url)
+    atr_json = atr_response.json()
+
+    print(atr_json)
+    with open(f'Data/{ticker}_ATR.json', "w") as file:
+        json.dump(atr_json, file, indent=4)
