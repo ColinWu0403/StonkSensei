@@ -65,7 +65,7 @@ const MovingColumn = ({ columnIndex }: { columnIndex: number }) => {
       {columnStocks.concat(columnStocks).map((stock, index) => (
         <div
           key={`${stock}-${index}`}
-          className="text-xs font-medium text-gray-300 opacity-10 whitespace-nowrap h-8 flex items-center justify-center"
+          className="text-xs font-medium text-gray-300 opacity-5 whitespace-nowrap h-8 flex items-center justify-center"
         >
           {stock}
         </div>
@@ -78,8 +78,7 @@ export const MovingBackground = () => {
   const columns = 10;
 
   // background-color: #b2e911;
-  // background-image: linear-gradient(97deg, #b2e911 0%, #1d1d1d 98%, #1d1d1d 100%);
-  
+  // background-image: linear-gradient(106deg, #b2e911 0%, #1d1d1d 96%, #1d1d1d 98%);
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-neutral">
