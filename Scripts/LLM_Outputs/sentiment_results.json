@@ -1,0 +1,38 @@
+[
+    {
+        "text": "GME is gonna skyrocket \ud83d\ude80\ud83d\ude80",
+        "positive": 0.063,
+        "negative": 0.441,
+        "neutral": 0.497
+    },
+    {
+        "text": "I think TSLA is overvalued, sell now!",
+        "positive": 0.118,
+        "negative": 0.017,
+        "neutral": 0.865
+    },
+    {
+        "text": "AAPL might be a solid long-term hold.",
+        "positive": 0.803,
+        "negative": 0.01,
+        "neutral": 0.188
+    },
+    {
+        "text": "Advanced Money Destroyer just won\u2019t go up. I\u2019ve put All My Dollars in this stock and what do I get? Account Massively Drained. I was told stocks only go up and that some good DD prevents the inevitable Wendy\u2019s dumpster but I just Ain\u2019t Making Dollars. I mean, it Ain\u2019t Making Dividends, it\u2019s Always Moving Down, and just had Another Massive Dip.",
+        "positive": 0.018,
+        "negative": 0.856,
+        "neutral": 0.126
+    },
+    {
+        "text": "Adding to the recent million capital raise, ACHR now has about $1 billion in liquidity, giving them a solid runway to keep innovating without the worry of near-term funding. This move not only strengthens their balance sheet but also reduces the risk of future stock dilution, which has been a concern for the major investors for a while now.",
+        "positive": 0.952,
+        "negative": 0.02,
+        "neutral": 0.028
+    },
+    {
+        "text": "I've held this in long enough. The shame, guilt, lies. Pretending to be cool and knowing what the fuck I'm talking about. I've been holding this in for years. I've cried and cried and cried. I'm fed up with my bitch behavior. It's time to fucking take things into my own hands and change. I'm not stopping, I'm going to gain this all back the slow, and right way. Here's my story.",
+        "positive": 0.047,
+        "negative": 0.053,
+        "neutral": 0.9
+    }
+]
