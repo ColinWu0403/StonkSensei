@@ -28,7 +28,10 @@ async def get_average_true_range(
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/{ticker}/sentiment")
-async def get_market_sentiment(ticker: str, limit: int):
+async def get_market_sentiment(
+    ticker: str, 
+    limit: int = Query(1000, ge=1)
+):
     """
     Get Average True Range (ATR) data for a given ticker.
     """
