@@ -1,0 +1,4 @@
+modal==0.73.64
+transformers==4.49.0
+huggingface-hub==0.29.1
+torch==2.6.0
