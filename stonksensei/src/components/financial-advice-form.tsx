@@ -11,10 +11,11 @@ import { Input } from "@/components/ui/input"
 import { DollarSign } from "lucide-react"
 
 // TODO: implement color changes based on risk level
+// TODO: center low/mid/high and short/medium/long center buttons
 
 export default function FinancialAdviceForm() {
   const [formData, setFormData] = useState({
-    investmentAmount: 10000,
+    investmentAmount: 0,
     riskLevel: "mid",
     investmentTimeline: "medium",
     yoloFactor: 50,
@@ -44,7 +45,7 @@ export default function FinancialAdviceForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-12">
-      <div className="space-y-4">
+      <div className="space-y-4 rounded-md">
         <Label htmlFor="investmentAmount" className="text-lg font-medium text-white">
           Investment Amount
         </Label>
@@ -61,7 +62,7 @@ export default function FinancialAdviceForm() {
                 const value = e.target.value.replace(/,/g, "")
                 handleChange("investmentAmount", Number.parseInt(value) || 0)
               }}
-              className="py-8 text-4xl font-bold bg-gray-800 text-white border-2 border-positive focus:ring-positive text-center"
+              className="rounded-xl py-8 text-4xl font-bold bg-gray-800 text-white border-2 border-positive focus:ring-positive text-center"
             />
           </div>
         </div>
@@ -131,7 +132,7 @@ export default function FinancialAdviceForm() {
         </div>
       </div>
 
-      <Button type="submit" className="w-full bg-positive hover:bg-positive/90 text-black font-semibold py-3 rounded-full">
+      <Button type="submit" className="w-full bg-positive hover:bg-positive/90 text-black font-semibold py-3 rounded-xl">
         Get Investment Advice
       </Button>
     </form>
