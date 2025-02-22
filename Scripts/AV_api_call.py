@@ -19,7 +19,7 @@ for ticker in tickers:
     msa_response = requests.get(msa_url)
     msa_json = msa_response.json()
 
-    with open(f'Data/{ticker}_intraday.json', "w") as file:
+    with open(f'Data/{ticker}_seniments.json', "w") as file:
         json.dump(msa_json, file, indent=4)
 
 # fundamental data api -- company overview (gets data containing beta)

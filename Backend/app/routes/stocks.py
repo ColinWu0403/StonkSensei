@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from ..utils.av_client import get_company_overview, get_atr, get_sentiment
+from ..utils.av_client import get_company_overview, get_atr, get_sentiment, get_news
 
 router = APIRouter()
 
@@ -30,12 +30,25 @@ async def get_average_true_range(
 @router.get("/{ticker}/sentiment")
 async def get_market_sentiment(
     ticker: str, 
-    limit: int = Query(1000, ge=1)
+    num_articles: int = Query(1000, ge=1)
 ):
     """
-    Get Average True Range (ATR) data for a given ticker.
+    Get Market Sentiment data for a given ticker.
     """
     try:
-        return get_sentiment(ticker, limit)
+        return get_sentiment(ticker, num_articles)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/{ticker}/news")
+async def get_news_articles(
+    ticker: str,
+    num_articles: int = Query(5, ge=1)
+):
+    """
+    Get Market News data for a given ticker.
+    """
+    try:
+        return get_news(ticker, num_articles)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
