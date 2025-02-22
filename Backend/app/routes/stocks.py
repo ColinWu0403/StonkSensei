@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from ..utils.av_client import get_company_overview, get_atr, get_sentiment, get_news
+from ..utils.av_client import get_company_overview, get_beta, get_atr, get_sentiment, get_news
 
 router = APIRouter()
 
@@ -10,6 +10,16 @@ async def get_stock_overview(ticker: str):
     """
     try:
         return get_company_overview(ticker)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/{ticker}/beta")
+async def get_beta_value(ticker: str):
+    """
+    Get company overview data for a given ticker.
+    """
+    try:
+        return get_beta(ticker)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
