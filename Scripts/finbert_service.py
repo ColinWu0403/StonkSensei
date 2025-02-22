@@ -39,9 +39,9 @@ def analyze_sentiment(reddit_texts):
         # Create structured output
         sentiment_result = {
             "text": text,
-            "negative": round(probs[0], 3),
-            "neutral": round(probs[1], 3),
-            "positive": round(probs[2], 3)
+            "positive": round(probs[0], 3),
+            "negative": round(probs[1], 3),
+            "neutral": round(probs[2], 3)
         }
 
         results.append(sentiment_result)
