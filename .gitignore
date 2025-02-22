@@ -25,6 +25,7 @@
 .DS_Store
 *.pem
 __pycache__
+hide
 
 # debug
 npm-debug.log*
@@ -44,6 +45,8 @@ next-env.d.ts
 
 /stonksensei/node_modules
 /stonksensei/.next
+
+LLM_Outputs
 
 # data
 Data/*.json

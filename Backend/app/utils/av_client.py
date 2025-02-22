@@ -15,7 +15,19 @@ def get_company_overview(ticker: str):
     url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={API_KEY}"
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
-    return response.json()
+    data = response.json()
+    return data
+
+def get_beta(ticker: str):
+    """
+    Get beta from AlphaVantage.
+    """
+    url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={API_KEY}"
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
+    data = response.json()
+    # only return beta value
+    return {"beta": data.get("Beta")}
 
 def get_atr(ticker: str, interval: str = "monthly", time_period: int = 60):
     """
@@ -24,13 +36,30 @@ def get_atr(ticker: str, interval: str = "monthly", time_period: int = 60):
     url = f"https://www.alphavantage.co/query?function=ATR&symbol={ticker}&interval={interval}&time_period={time_period}&apikey={API_KEY}"
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
-    return response.json()
+    data = response.json()
+    # only return last month's averaged ATR
+    last_refeshed_date = data["Meta Data"]["3: Last Refreshed"]
+    atr_value = data["Technical Analysis: ATR"][last_refeshed_date]["ATR"]
+    return {"atr": atr_value}
+    
 
-def get_sentiment(ticker: str, limit: int):
+def get_sentiment(ticker: str, num_articles: int):
     """
-    Get Market Sentiment & Analysis data from AlphaVantage.
+    Get Market Sentiment data from AlphaVantage.
     """
-    url = f'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={ticker}&limit={limit}&datatype=json&apikey={API_KEY}'
+    url = f'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={ticker}&limit={num_articles}&datatype=json&apikey={API_KEY}'
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
-    return response.json()
+    data = response.json()
+    data.pop("feed", None) # only return sentiment data
+    return data
+
+def get_news(ticker: str, num_articles: int):
+    """
+    Get Market News data from AlphaVantage.
+    """
+    url = f'https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={ticker}&limit={num_articles}&datatype=json&apikey={API_KEY}'
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
+    data = response.json()
+    return data.get("feed") # only return news articles
