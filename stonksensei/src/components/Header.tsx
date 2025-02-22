@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Header() {
   return (
-    <header className="bg-neutral shadow-sm">
+    <header className="sshadow-sm z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-start items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center lg:w-0 lg:flex-1">
@@ -27,15 +27,18 @@ export default function Header() {
           </div>
 
           <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
-            <Button
-              variant="outline"
+            <a
               className="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-base font-medium bg-neutral hover:outline"
+              href="/auth/login"
             >
               Sign in
-            </Button>
-            <Button className="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-base font-medium text-neutral bg-positive">
+            </a>
+            <a
+              href="auth/login"
+              className="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-base font-medium text-neutral bg-positive"
+            >
               Sign up
-            </Button>
+            </a>
           </div>
         </div>
       </div>
