@@ -36,7 +36,9 @@ def get_ticker_data(ticker: str, df):
 class RecommendationRequest(BaseModel):
     user_prompt: str
     blacklist: list[str]
-    fav_category: str
+    amount: int
+    user_risk: str
+    yolo: int
 
 # Get a reference to your Modal recommendation function.
 try:
@@ -45,13 +47,16 @@ except Exception as e:
     print(f"Error connecting to Modal recommendation function: {e}")
     modal_generate_recommendation = None
 
-@router.post("/llm_response/")
+@router.post("/output/")
 async def process_and_recommend(request: RecommendationRequest):
     """
     Reads the CSV to get the full stock list, filters out stocks in the blacklist, then
     calculates the sentiment, hype, and risk scores for each remaining stock. Finally, it
     calls the Modal-hosted generate_recommendation function with the filtered list.
     """
+    if request.yolo > 6:
+        request.user_risk = "High Risk, High Volatility, Short-term"
+
     try:
         df = read_csv_data()
     except Exception as e:
@@ -101,11 +106,11 @@ async def process_and_recommend(request: RecommendationRequest):
         })
 
     # Now, call the Modal-hosted generate_recommendation function.
-    # It expects: user_prompt: str, stock_data: list, fav_category: str.
     try:
-        recommendation = modal_generate_recommendation.remote(request.user_prompt, filtered_stocks, request.fav_category)
+        recommendation = modal_generate_recommendation.remote(request.user_prompt, filtered_stocks, request.amount, request.user_risk)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calling Modal recommendation function: {e}")
+    
     
     return recommendation, filtered_stocks
 

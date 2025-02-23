@@ -119,6 +119,8 @@ export default function FinancialAdviceForm({
               className="bg-neutral outline-none bg-none focus:border-white"
               value={preferences}
               onChange={(e) => setPreferences(e.target.value)}
+              value={preferences}
+              onChange={(e) => setPreferences(e.target.value)}
             />
           </div>
         </CardContent>

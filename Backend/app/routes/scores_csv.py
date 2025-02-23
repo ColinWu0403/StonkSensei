@@ -95,16 +95,15 @@ async def get_hype_score_csv(ticker: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/risk-csv/{ticker}")
-async def get_risk_score_csv(ticker: str, sentiment_score: Optional[str] = Query(None)):
+async def get_risk_score_csv(ticker: str, sentiment_score: float = Query(..., description="Required sentiment score between -1 and 1")):
     """Calculate risk score (combination of volatility and sentiment)"""
     try:
         if sentiment_score is None:
             return {"error": "Missing sentiment_score parameter"}
 
-        try:
-            sentiment_score = float(sentiment_score)  # Convert safely
-        except ValueError:
-            return {"error": "Invalid sentiment_score. Must be a valid number."}
+        # Validate sentiment score range
+        if not -1 <= sentiment_score <= 1:
+            raise HTTPException(status_code=400, detail="Sentiment score must be between -1 and 1")
         
         # Step 1: Get Beta from AlphaVantage
         beta_data = get_beta(ticker)
@@ -122,5 +121,9 @@ async def get_risk_score_csv(ticker: str, sentiment_score: Optional[str] = Query
         
         return {"ticker": ticker, "risk_score": round(risk_score, 2)}
     
+    except HTTPException as he:
+        raise he
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=f"Invalid numeric value: {str(ve)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

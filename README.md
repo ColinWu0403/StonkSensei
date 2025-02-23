@@ -19,7 +19,7 @@ StonkSensei is a next-gen stock analysis platform that:
 ## ⚙️ How we built it
 Tech Stack
 - Frontend: React/Next.js (TypeScript) + Tailwind CSS
-- Backend: FastAPI
+- Backend: FastAPI (Python)
 - ML Pipeline:
   - Pandas for data cleaning
   - FinBERT and FinTwitBERT for sentiment analysis
@@ -31,28 +31,36 @@ Tech Stack
   - Auth: Okta Auth0
 - Deployment:
   - AI/ML: Modal for GPU-accelerated inference
-  - Frontend: Vercel
-  - Backend:
 
-## Challenges we ran into
+## 🧗 Challenges we ran into
 1. Model Integration Hell: Getting FinBERT/FinTwitBERT to play nicely with real-time sentiment streams
 2. Reddit Rate Limits: Overcoming API restrictions with smart Selenium scraping
 3. Meme Stock Detection: Separating genuine hype from bot-driven noise
 4. Risk Calculation: Blending traditional beta scores with social volatility metrics
+5. Prompt Engineering: Creating prompts that do proper analysis while providing data for user needs
+6. Connecting Components: Making sure frontend, backend, and ML components work seamlessly with each other.
 
-## Accomplishments that we're proud of
+## 🏆 Accomplishments that we're proud of
 
-## What we learned
+- Designed a visually appealing and accessible user interface
+- Gathered large amounts of social media data using web scraping
+- Utilized sentiment analysis and market data to assess risk of investments
+- Used DeepSeek to provide stock advising information to users.
+
+## 📚 What we learned
 - Financial NLP requires domain-specific fine-tuning (generic models fail)
 - Social sentiment has asymmetric impact – panic sells faster than hype buys
 - User experience is king: Traders want insights, not raw data
 - Web scraping ethics – when does "public data" become intrusive?
 - The power of JIT model loading on Modal's GPU cluster
+- Technical skills like FastAPI, web scraping, and NLP
 
-## What's next for StonkSensei
+## 🔮 What's next for StonkSensei
 
 🚀 Ready for Smarter Investing?
 StonkSensei – Where Wall Street Meets Main Street
+
+In the future, we plan to utilize more financial data and improve our financial models using RAGs, LangChain, and other AI/ML systems in order to continue dominating the stock market.
 
 ## Acknowledgements
 This project uses the following pre-trained models:
