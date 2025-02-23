@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from ..utils.av_client import get_company_overview, get_price
-import scores_csv
-import stocks
+from .scores_csv import get_risk_score_csv, get_hype_score_csv, get_sentiment_score_csv
+from .stocks import get_news_articles
 
 router = APIRouter()
 
@@ -69,12 +69,12 @@ async def get_advice(
             "ticker": ticker,
             "category": category,
             "reasoning": reasoning,
-            "links": stocks.get_news_articles(ticker),
-            "risk": scores_csv.get_risk_score_csv(ticker),
-            "hype": scores_csv.get_hype_score_csv(ticker),
-            "sentiment": scores_csv.get_sentiment_score_csv(ticker),
+            "links": get_news_articles(ticker),
+            "risk": get_risk_score_csv(ticker),
+            "hype": get_hype_score_csv(ticker),
+            "sentiment": get_sentiment_score_csv(ticker),
             "final_score": final_score,
         }
         res.append(curr_res.copy())
 
-    return res
+    return dummy_data
