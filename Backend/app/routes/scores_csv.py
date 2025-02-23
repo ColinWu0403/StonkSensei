@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
+from ..utils.av_client import get_beta, get_atr
 import pandas as pd
 import os
 import modal
+import requests
 
 router = APIRouter()
 
@@ -81,9 +83,10 @@ async def get_hype_score_csv(ticker: str):
         mentions = ticker_data['num_of_mentions']
         upvotes = ticker_data['total_upvotes']
         comments = ticker_data['total_comments']
+        total_posts = 32 + 28
         
         # Adjusted formula using available CSV data
-        hype_score = (mentions + (upvotes * 0.5) + (comments * 0.3)) / max(mentions, 1)
+        hype_score = (mentions + (upvotes * 0.5) + (comments * 0.3)) / total_posts
         
         return {"ticker": ticker, "hype_score": round(hype_score, 2)}
     
@@ -91,20 +94,22 @@ async def get_hype_score_csv(ticker: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/risk-csv/{ticker}")
-async def get_risk_score_csv(ticker: str):
+async def get_risk_score_csv(ticker: str, sentiment_score: float):
     """Calculate risk score (combination of volatility and sentiment)"""
     try:
-        df = read_csv_data()
-        ticker_data = get_ticker_data(ticker, df)
+        # Step 1: Get Beta from AlphaVantage
+        beta_data = get_beta(ticker)
+        beta = float(beta_data["beta"])  # Extract the beta value
+
+        # Step 2: Get ATR from AlphaVantage
+        atr_data = get_atr(ticker, interval="monthly", time_period=60)
+        atr = float(atr_data["atr"])  # Extract the ATR value
+
+        # Step 3: Get sentiment variability (from params)
+        sentiment_mult = (sentiment_score * 5)
         
-        # Get volatility metrics (you'll need to implement these)
-        beta = 1.2  # Placeholder - implement actual beta calculation
-        atr = 5.67  # Placeholder - implement actual ATR calculation
-        
-        # Get sentiment variability from CSV history
-        sentiment_variability = 2.5  # Placeholder
-        
-        risk_score = (beta * 0.5) + (atr * 10) + (sentiment_variability * 5)
+        # Step 4: Calculate risk score
+        risk_score = (beta * 0.5) + (atr * 10) + sentiment_mult
         
         return {"ticker": ticker, "risk_score": round(risk_score, 2)}
     
