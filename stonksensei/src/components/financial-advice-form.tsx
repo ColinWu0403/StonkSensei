@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import FloatingPaths from "./FloatingPaths"
 import LoadingScreen from "./LoadingScreen"
 
-export default function InvestmentForm() {
+export default function FinancialAdviceForm() {
   const [riskLevel, setRiskLevel] = useState<string>("")
   const [timeline, setTimeline] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
