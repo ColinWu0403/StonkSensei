@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Header() {
   return (
-    <header className="sshadow-sm z-10">
+    <header className="sshadow-sm z-10 min-h-[10vh]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-start items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center lg:w-0 lg:flex-1">

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { User } from "@auth0/nextjs-auth0/types";
 export default function FormHeader({ user }: User) {
   return (
-    <header className="sshadow-sm z-10 bg-neutral">
+    <header className="sshadow-sm z-10 min-h-[10vh] bg-neutral">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-start items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center lg:w-0 lg:flex-1">

@@ -103,7 +103,7 @@ export default function InvestmentForm() {
           <Button className="w-full text-black bg-positive">Invest</Button>
         </CardFooter>
       </Card>
-      <FloatingPaths position={-1} />
+      <FloatingPaths position={-1}/>
     </div>
   );
 }
