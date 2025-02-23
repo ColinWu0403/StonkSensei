@@ -1,8 +1,8 @@
 # StonkSensei
 
-**Your AI-Powered Stock Market Oracle**
-
 ![Banner](stonksensei/public/Banner.png)
+
+**Your AI-Powered Stock Market Oracle**
 
 _Harnessing social sentiment and advanced ML to guide your investment decisions._
 
