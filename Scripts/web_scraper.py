@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from fake_useragent import UserAgent
 import csv
 
-URL = "https://www.reddit.com/r/wallstreetbets/top/?t=month"
+URL = "https://www.reddit.com/r/wallstreetbets/hot/?t=month"
 SCROLL_PAUSE_TIME = 5
 NUM_SCROLLS = 2
 SLEEP_MS = 0
