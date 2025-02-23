@@ -1,12 +1,11 @@
 import pandas as pd
 import re
 from collections import defaultdict
+import os
 
-# Load valid tickers from a file or define them manually
-valid_tickers = {"AAPL", "TSLA", "AMZN", "GME", "MSFT", "AMC", "BB", "NOK", "GOOGL", "FB", "NVDA", "SPY", "QQQ", "COST", "TSMC", "AMD", "DJT", "PLTR"}
-
+# Dictionary to map company names to tickers
 company_to_ticker = {
-    # Tickers from valid_tickers
+    # Tickers and company names
     "aapl": "AAPL",  # Apple
     "tsla": "TSLA",  # Tesla
     "amzn": "AMZN",  # Amazon
@@ -89,7 +88,16 @@ company_to_ticker = {
     "travel + leisure": "TNL",
     "patterson-uti energy": "PTEN",
     "banc of california": "BANC",
-    "netstreit": "NTST"
+    "netstreit": "NTST",
+    "berkshire": "BRK",
+    "moderna": "MRNA",
+    "carlisle": "CSL",
+    "intuitive": "LUNR",
+    "barclays": "VXX",
+    "dropbox": "DBX",
+    "hims & hers health": "HIMS",
+    "unitedhealth": "UNH",
+    "archer aviation": "ACHR"
 }
 
 # Function to extract tickers and company names from text
@@ -101,27 +109,33 @@ def extract_tickers_and_names(text):
     return tickers + names
 
 # Function to clean and filter tickers
-def clean_tickers(text, valid_tickers):
+def clean_tickers(text):
     if not isinstance(text, str):  # Handle NaN or non-string values
         return []
     potential_tickers_and_names = extract_tickers_and_names(text)
     # Convert company names to tickers and filter valid tickers
     cleaned_tickers = []
     for item in potential_tickers_and_names:
-        if item.upper() in valid_tickers:  # Already a valid ticker
-            cleaned_tickers.append(item.upper())
-        elif item.lower() in company_to_ticker:  # Convert company name to ticker
+        if item.lower() in company_to_ticker:  # Convert company name to ticker
             cleaned_tickers.append(company_to_ticker[item.lower()])
     return list(set(cleaned_tickers))  # Remove duplicates
 
+# Function to truncate the body text
+def truncate_body(body, max_length=100):
+    if not isinstance(body, str):  # Handle NaN or non-string values
+        return ""
+    if len(body) > max_length:
+        return body[:max_length] + "..."
+    return body
+
 # Function to process a row (title and body)
 def process_row(row):
-    title_tickers = clean_tickers(row["title"], valid_tickers)
-    body_tickers = clean_tickers(row["body"], valid_tickers)
+    title_tickers = clean_tickers(row["title"])
+    body_tickers = clean_tickers(str(row["body"]))
     return list(set(title_tickers + body_tickers))  # Combine and remove duplicates
 
 # Load the CSV file
-input_csv = "../Data/scrape1.csv"
+input_csv = "../Data/scrape_hot.csv"
 output_csv = "../Data/reddit_stats.csv"
 
 # Read the CSV into a DataFrame
@@ -141,7 +155,7 @@ df["upvotes"] = df["upvotes"].fillna(0).astype(int)
 df["num_comments"] = df["num_comments"].fillna(0).astype(int)
 
 # Initialize a dictionary to store statistics
-ticker_stats = defaultdict(lambda: {"total_upvotes": 0, "total_comments": 0, "num_of_mentions": 0})
+ticker_stats = defaultdict(lambda: {"total_upvotes": 0, "total_comments": 0, "num_of_mentions": 0, "referenced_posts": ""})
 
 # Process each row and update statistics
 for _, row in df.iterrows():
@@ -150,12 +164,34 @@ for _, row in df.iterrows():
         ticker_stats[ticker]["total_upvotes"] += row["upvotes"]
         ticker_stats[ticker]["total_comments"] += row["num_comments"]
         ticker_stats[ticker]["num_of_mentions"] += 1
+        # Add the post title and truncated body to referenced_posts
+        post_reference = f"Title: {row['title']}\nBody: {truncate_body(str(row['body']))}"
+        if ticker_stats[ticker]["referenced_posts"]:  # If not empty, add a separator
+            ticker_stats[ticker]["referenced_posts"] += ", "
+        ticker_stats[ticker]["referenced_posts"] += post_reference
 
 # Convert the dictionary to a DataFrame
-stats_df = pd.DataFrame.from_dict(ticker_stats, orient="index").reset_index()
-stats_df.columns = ["Ticker", "total_upvotes", "total_comments", "num_of_mentions"]
+new_stats_df = pd.DataFrame.from_dict(ticker_stats, orient="index").reset_index()
+new_stats_df.columns = ["Ticker", "total_upvotes", "total_comments", "num_of_mentions", "referenced_posts"]
 
-# Save the results to a new CSV
-stats_df.to_csv(output_csv, index=False)
+# Check if the output CSV already exists
+if os.path.exists(output_csv):
+    # Load the existing data
+    existing_stats_df = pd.read_csv(output_csv)
+    # Combine the new data with the existing data
+    combined_stats_df = pd.concat([existing_stats_df, new_stats_df])
+    # Group by Ticker and aggregate the metrics
+    combined_stats_df = combined_stats_df.groupby("Ticker", as_index=False).agg({
+        "total_upvotes": "sum",
+        "total_comments": "sum",
+        "num_of_mentions": "sum",
+        "referenced_posts": lambda x: ", ".join(x)
+    })
+else:
+    # If the file doesn't exist, use the new data
+    combined_stats_df = new_stats_df
+
+# Save the combined results to the CSV
+combined_stats_df.to_csv(output_csv, index=False)
 
 print(f"Processed data saved to {output_csv}")
