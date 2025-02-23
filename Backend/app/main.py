@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import stocks, sentiment, scores
+from app.routes import stocks, sentiment, scores_csv
 
 app = FastAPI(title="Stonk Sensei Backend", version="0.1.0")
 
@@ -15,7 +15,7 @@ app.add_middleware(
 # Include routers
 app.include_router(stocks.router, prefix="/stocks", tags=["stocks"])
 app.include_router(sentiment.router, prefix="/sentiment", tags=["sentiment"])
-app.include_router(scores.router, prefix="/scores", tags=["scores"])
+app.include_router(scores_csv.router, prefix="/scores", tags=["scores"])
 
 @app.get("/")
 async def root():
