@@ -2,14 +2,18 @@
 
 **Your AI-Powered Stock Market Oracle**
 
-*Harnessing social sentiment and advanced ML to guide your investment decisions.*
+![Banner](stonksensei/public/Banner.png)
+
+_Harnessing social sentiment and advanced ML to guide your investment decisions._
 
 ## 📖 Inspiration
+
 Traditional stock analysis tools often overlook the power of social sentiment, while retail investors increasingly rely on platforms like Reddit and Twitter for market insights. We built StonkSensei to bridge this gap, combining **quantitative metrics** with **qualitative social sentiment** to democratize data-driven investing. Inspired by the GameStop saga, we wanted to create a tool that decodes "meme stock" hype while maintaining rigorous financial analysis.
 
 ## 🚀 What it does
 
 StonkSensei is a next-gen stock analysis platform that:
+
 - **Analyzes sentiment** across Reddit and financial news using FinBERT and FinTwitBERT ML models
 - Calculates real-time **"Hype Score"** based on social media engagement
 - Generates **risk profiles** using real market data + proprietary volatility algorithms
@@ -17,7 +21,9 @@ StonkSensei is a next-gen stock analysis platform that:
 - Flags blacklisted/meme stocks while suggesting whitelisted opportunities
 
 ## ⚙️ How we built it
+
 Tech Stack
+
 - Frontend: React/Next.js (TypeScript) + Tailwind CSS
 - Backend: FastAPI (Python)
 - ML Pipeline:
@@ -33,6 +39,7 @@ Tech Stack
   - AI/ML: Modal for GPU-accelerated inference
 
 ## 🧗 Challenges we ran into
+
 1. Model Integration Hell: Getting FinBERT/FinTwitBERT to play nicely with real-time sentiment streams
 2. Reddit Rate Limits: Overcoming API restrictions with smart Selenium scraping
 3. Meme Stock Detection: Separating genuine hype from bot-driven noise
@@ -48,6 +55,7 @@ Tech Stack
 - Used DeepSeek to provide stock advising information to users.
 
 ## 📚 What we learned
+
 - Financial NLP requires domain-specific fine-tuning (generic models fail)
 - Social sentiment has asymmetric impact – panic sells faster than hype buys
 - User experience is king: Traders want insights, not raw data
@@ -63,6 +71,7 @@ StonkSensei – Where Wall Street Meets Main Street
 In the future, we plan to utilize more financial data and improve our financial models using RAGs, LangChain, and other AI/ML systems in order to continue dominating the stock market.
 
 ## Acknowledgements
+
 This project uses the following pre-trained models:
 
 - **FinBERT**: [GitHub](https://github.com/ProsusAI/finBERT) | [MIT License](https://opensource.org/licenses/MIT)

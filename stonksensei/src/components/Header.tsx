@@ -8,12 +8,14 @@ export default function Header() {
         <div className="flex justify-start items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center lg:w-0 lg:flex-1">
             <Link href="/">
-              <span className="sr-only">StreamLine</span>
-              <img
-                src={"stonks.png"}
-                alt="Stonks"
-                className="h-12 w-auto sm:h-12"
-              />
+              <div className="flex flex-row items-center justify-center">
+                <img
+                  src={"stonks.png"}
+                  alt="Stonks"
+                  className="h-12 w-auto sm:h-12 mr-2"
+                />
+                <span className="font-bold">StonkSensei</span>
+              </div>
             </Link>
           </div>
 
