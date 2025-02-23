@@ -40,3 +40,9 @@ pip install requirements.txt
 ```
 uvicorn app.main:app --reload
 ```
+
+### Test endpoints (with Swagger):
+
+```
+http://127.0.0.1:8000/docs
+```
