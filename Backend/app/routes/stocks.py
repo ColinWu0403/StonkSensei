@@ -40,7 +40,7 @@ async def get_average_true_range(
 @router.get("/{ticker}/sentiment")
 async def get_market_sentiment(
     ticker: str, 
-    num_articles: int = Query(1000, ge=1)
+    num_articles: int = Query(10, ge=1)
 ):
     """
     Get Market Sentiment data for a given ticker.
