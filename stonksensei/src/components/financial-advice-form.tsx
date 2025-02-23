@@ -21,22 +21,20 @@ export default function FinancialAdviceForm() {
   const handleInvest = async () => {
     console.log(amount, riskLevel, timeline, yoloFactor, preferences);
     try {
-      const response = await fetch(
-        "localhost:8000/advice/advice" +
-          new URLSearchParams({
-            investment_amount: amount ? amount : "0",
-            risk: riskLevel.toLowerCase(),
-            timeline: timeline.toLowerCase(),
-            yolo: yoloFactor.toString(),
-            preferences: preferences,
-          }),
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const response = await fetch("localhost:8000/advice/llm_response/", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+        body: JSON.stringify({
+          investment_amount: amount ? amount : 0,
+          risk: riskLevel.toLowerCase(),
+          timeline: timeline.toLowerCase(),
+          yolo: yoloFactor.toString(),
+          preferences: preferences,
+        }),
+      });
+      
 
       if (!response.ok) {
         throw new Error("Failed to fetch advice")
@@ -122,7 +120,7 @@ export default function FinancialAdviceForm() {
               onValueChange={(value) => setYoloFactor(value[0])}
               max={10}
               min={1}
-              step={0.5}
+              step={1}
               className="w-full"
             />
           </div>
