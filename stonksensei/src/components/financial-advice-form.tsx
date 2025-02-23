@@ -1,141 +1,109 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
+import FloatingPaths from "./FloatingPaths";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { motion } from "framer-motion"
-import { Input } from "@/components/ui/input"
-import { DollarSign } from "lucide-react"
-
-// TODO: implement color changes based on risk level
-// TODO: center low/mid/high and short/medium/long center buttons
-
-export default function FinancialAdviceForm() {
-  const [formData, setFormData] = useState({
-    investmentAmount: 0,
-    riskLevel: "mid",
-    investmentTimeline: "medium",
-    yoloFactor: 50,
-  })
-
-  const handleChange = (name: string, value: string | number) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }))
-  }
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log(formData)
-    // Here you would typically send the data to your backend
-  }
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value)
-  }
+export default function InvestmentForm() {
+  const [riskLevel, setRiskLevel] = useState<string>("");
+  const [timeline, setTimeline] = useState<string>("");
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12">
-      <div className="space-y-4">
-        <Label htmlFor="investmentAmount" className="text-lg font-medium text-white">
-          Investment Amount
-        </Label>
-        <div className="relative flex justify-center">
-          <div className="relative inline-block">
-            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-positive text-2xl" />
+    <div className="flex items-center justify-center my-16 p-4">
+      <Card className="w-full max-w-md bg-neutral-light border-none z-10">
+        <CardHeader>
+          <CardTitle>Investment Form</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="amount">Investment Amount ($)</Label>
             <Input
-              id="investmentAmount"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={formatCurrency(formData.investmentAmount).replace("$", "")}
-              onChange={(e) => {
-                const value = e.target.value.replace(/,/g, "")
-                handleChange("investmentAmount", Number.parseInt(value) || 0)
-              }}
-              className="rounded-xl py-8 text-4xl font-bold bg-gray-700 text-white border-2 text-center"
+              id="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="Enter amount"
             />
           </div>
-        </div>
-      </div>
 
-      <div className="space-y-4">
-        <Label className="text-lg font-medium text-white">Risk Level</Label>
-        <div className="flex justify-between">
-          {["low", "mid", "high"].map((level) => (
-            <motion.button
-              key={level}
-              type="button"
-              onClick={() => handleChange("riskLevel", level)}
-              className={`px-4 py-2 rounded-full ${
-                formData.riskLevel === level ? "bg-positive text-black" : "bg-gray-700 text-white"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {level}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <Label className="text-lg font-medium text-white">Investment Timeline</Label>
-        <div className="flex justify-between">
-          {["short", "medium", "long"].map((timeline) => (
-            <motion.button
-              key={timeline}
-              type="button"
-              onClick={() => handleChange("investmentTimeline", timeline)}
-              className={`px-4 py-2 rounded-full ${
-                formData.investmentTimeline === timeline ? "bg-positive text-black" : "bg-gray-700 text-white"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {timeline}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <Label htmlFor="yoloFactor" className="text-lg font-medium text-white">
-          YOLO Factor
-        </Label>
-        <div className="relative pt-1">
-          <Slider
-            id="yoloFactor"
-            min={0}
-            max={100}
-            step={1}
-            value={[formData.yoloFactor]}
-            onValueChange={(value) => handleChange("yoloFactor", value[0])}
-            className="w-full"
-          />
-          <div className="flex justify-between text-white mt-2">
-            <span>Play it safe</span>
-            <span className="absolute left-1/2 top-1/2 transform -translate-x-1/2 translate-y-2 text-white px-2 py-1 text-sm font-bold">
-              YOLO: {formData.yoloFactor}%
-            </span>
-            <span>To the moon! 🚀</span>
+          <div className="space-y-2">
+            <Label>Risk Level</Label>
+            <div className="flex space-x-2">
+              {["Low", "Medium", "High"].map((level) => (
+                <Button
+                  key={level}
+                  variant={riskLevel === level ? "default" : "outline"}
+                  onClick={() => setRiskLevel(level)}
+                  className={
+                    riskLevel === level
+                      ? level === "Low"
+                        ? "bg-positive"
+                        : level === "Medium"
+                        ? "bg-mid"
+                        : "bg-negative"
+                      : ""
+                  }
+                >
+                  {level}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
 
-      <Button type="submit" className="w-full bg-positive text-black font-semibold py-3 rounded-xl">
-        Get Investment Advice
-      </Button>
-    </form>
-  )
+          <div className="space-y-2">
+            <Label>Investment Timeline</Label>
+            <div className="flex space-x-2">
+              {["Short", "Medium", "Long"].map((term) => (
+                <Button
+                  key={term}
+                  variant={timeline === term ? "default" : "outline"}
+                  className={
+                    timeline === term ? "text-white outline outline-white" : ""
+                  }
+                  onClick={() => setTimeline(term)}
+                >
+                  {term}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>YOLO Factor</Label>
+            <Slider
+              defaultValue={[5]}
+              max={10}
+              min={1}
+              step={0.5}
+              className="w-full"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="preferences">Other Preferences</Label>
+            <Textarea
+              id="preferences"
+              placeholder="Enter any other preferences"
+              className="bg-neutral outline-none bg-none focus:border-white"
+            />
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full text-black bg-positive">Invest</Button>
+        </CardFooter>
+      </Card>
+      <FloatingPaths position={-1} />
+    </div>
+  );
 }
-

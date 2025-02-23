@@ -2,6 +2,7 @@
 
 import { useUser } from "@auth0/nextjs-auth0";
 import { useEffect } from "react";
+import FormHeader from "@/components/FormHeader";
 
 export default function ProtectedLayout({
   children,
@@ -35,5 +36,10 @@ export default function ProtectedLayout({
     return <div>Access Denied</div>;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <FormHeader user={user} sub={""} />
+      {children}
+    </>
+  );
 }

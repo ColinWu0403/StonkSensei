@@ -20,6 +20,8 @@ module.exports = {
         positive: "#B2E911",
         negative: "#FF4D4D",
         neutral: "#1D1D1D",
+        "neutral-light": "oklch(0.269 0 0)",
+        mid: "#FFDE21",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
