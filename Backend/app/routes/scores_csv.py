@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
+from typing import Optional
 from ..utils.av_client import get_beta, get_atr
 import pandas as pd
 import os
@@ -94,9 +95,17 @@ async def get_hype_score_csv(ticker: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/risk-csv/{ticker}")
-async def get_risk_score_csv(ticker: str, sentiment_score: float):
+async def get_risk_score_csv(ticker: str, sentiment_score: Optional[str] = Query(None)):
     """Calculate risk score (combination of volatility and sentiment)"""
     try:
+        if sentiment_score is None:
+            return {"error": "Missing sentiment_score parameter"}
+
+        try:
+            sentiment_score = float(sentiment_score)  # Convert safely
+        except ValueError:
+            return {"error": "Invalid sentiment_score. Must be a valid number."}
+        
         # Step 1: Get Beta from AlphaVantage
         beta_data = get_beta(ticker)
         beta = float(beta_data["beta"])  # Extract the beta value

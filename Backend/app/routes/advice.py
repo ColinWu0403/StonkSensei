@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import modal
 
-from routes.scores_csv import get_sentiment_score_csv, get_hype_score_csv, get_risk_score_csv
+from .scores_csv import get_sentiment_score_csv, get_hype_score_csv, get_risk_score_csv
 
 router = APIRouter()
 
@@ -45,7 +45,7 @@ except Exception as e:
     print(f"Error connecting to Modal recommendation function: {e}")
     modal_generate_recommendation = None
 
-@router.post("/advice/")
+@router.post("/llm_response/")
 async def process_and_recommend(request: RecommendationRequest):
     """
     Reads the CSV to get the full stock list, filters out stocks in the blacklist, then
@@ -90,6 +90,7 @@ async def process_and_recommend(request: RecommendationRequest):
             risk_resp = await get_risk_score_csv(current_ticker, sentiment_score)
             risk_score = float(risk_resp.get("risk_score", 0))
         except Exception as e:
+            print(e)
             risk_score = 0.0
         
         filtered_stocks.append({
@@ -106,7 +107,7 @@ async def process_and_recommend(request: RecommendationRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calling Modal recommendation function: {e}")
     
-    return recommendation
+    return recommendation, filtered_stocks
 
 dummy_data = [
     {

@@ -20,7 +20,7 @@ image = modal.Image.debian_slim().pip_install(
 CACHE_DIR = Path("/cache")
 
 # Model configuration
-MODEL_NAME = "deepseek-ai/deepseek-moe-16b-chat"
+MODEL_NAME = "deepseek-ai/deepseek-llm-7b-chat"
 
 def load_model():
     """Load the small DeepSeek model with 4-bit quantization and trust_remote_code"""
@@ -75,7 +75,7 @@ def generate_recommendation(user_prompt: str, stock_data: list[dict], fav_catego
         search_inputs = tokenizer(search_prompt, return_tensors="pt").to(model.device)
         prompt_length = search_inputs.input_ids.shape[1]
         
-        max_tokens = min(512, getattr(model.config, "max_length", 1024) - prompt_length)
+        max_tokens = 512
                 
         search_output = model.generate(
             search_inputs.input_ids,
