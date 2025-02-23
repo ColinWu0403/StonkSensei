@@ -3,8 +3,15 @@ from pydantic import BaseModel
 import pandas as pd
 import os
 import modal
+import re
+import json
+import logging
 
 from .scores_csv import get_sentiment_score_csv, get_hype_score_csv, get_risk_score_csv
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -33,12 +40,70 @@ def get_ticker_data(ticker: str, df):
         raise HTTPException(status_code=404, detail="Ticker not found in dataset")
     return ticker_data.iloc[0]
 
+def parse_recommendation_response(response_text: str) -> list[dict]:
+    """Robust parser for different response formats"""
+    try:
+        # First try direct JSON parsing
+        try:
+            data = json.loads(response_text)
+            if isinstance(data, list):
+                return data
+            if isinstance(data, dict):
+                return [data]
+        except json.JSONDecodeError:
+            pass
+       # Try extracting JSON from text
+        clean_text = response_text.replace('\\n', ' ').replace('\\"', "'")
+        
+        # Find all JSON objects/arrays in the text
+        json_objects = []
+        for match in re.finditer(r'\{.*?\}|\[.*?\]', clean_text, re.DOTALL):
+            try:
+                parsed = json.loads(match.group())
+                if isinstance(parsed, list):
+                    json_objects.extend(parsed)
+                else:
+                    json_objects.append(parsed)
+            except json.JSONDecodeError:
+                continue
+
+        if not json_objects:
+            raise ValueError("No valid JSON found in response text")
+        # Flatten nested lists and filter for recommendation structures
+        final_recommendations = []
+        for obj in json_objects:
+            if isinstance(obj, list):
+                final_recommendations.extend(
+                    [item for item in obj if isinstance(item, dict)]
+                )
+            elif isinstance(obj, dict) and "Ticker" in obj:
+                final_recommendations.append(obj)
+
+        if not final_recommendations:
+            raise ValueError("No valid recommendations found in parsed JSON")
+
+        return final_recommendations
+
+    except Exception as e:
+        logger.error(f"Parse Error: {str(e)} in response: {response_text}")
+        raise ValueError(f"Failed to parse recommendations: {str(e)}")
+
+
 class RecommendationRequest(BaseModel):
     user_prompt: str
     blacklist: list[str]
     amount: int
     user_risk: str
     yolo: int
+
+
+class Advice(BaseModel):
+    ticker: str
+    category: str
+    risk: float
+    hype: float
+    sentiment: float
+    reasoning: str
 
 # Get a reference to your Modal recommendation function.
 try:
@@ -111,8 +176,85 @@ async def process_and_recommend(request: RecommendationRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calling Modal recommendation function: {e}")
     
-    
-    return recommendation, filtered_stocks
+    try:
+        recommendation = modal_generate_recommendation.remote(
+            request.user_prompt, 
+            filtered_stocks, 
+            request.amount, 
+            request.user_risk
+        )
+    except Exception as e:
+        logger.error(f"Modal API Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Modal API Error: {str(e)}")
+
+    try:
+        # Handle different response types
+        if isinstance(recommendation, dict):
+            logger.debug("Received dictionary response from Modal")
+            if "recommendations" in recommendation:
+                recommendations = recommendation["recommendations"]
+            else:
+                recommendations = [recommendation]
+        elif isinstance(recommendation, str):
+            logger.debug("Received string response from Modal")
+            recommendations = parse_recommendation_response(recommendation)
+        else:
+            logger.error(f"Unexpected response type: {type(recommendation)}")
+            raise ValueError(f"Unexpected response type: {type(recommendation)}")
+
+        logger.debug(f"Parsed recommendations: {recommendations}")
+
+        # Create score lookup and validate data
+        score_lookup = {}
+        for stock in filtered_stocks:
+            try:
+                score_lookup[stock["ticker"].upper()] = {
+                    "risk": float(stock["risk"]),
+                    "hype": float(stock["hype"]),
+                    "sentiment": float(stock["sentiment_score"])
+                }
+            except KeyError as ke:
+                logger.error(f"Missing key in stock data: {ke}")
+                continue
+            except ValueError as ve:
+                logger.error(f"Invalid numeric value in stock data: {ve}")
+                continue
+        advice_list = []
+        for rec in recommendations:
+            try:
+                # Validate recommendation structure
+                if not all(key in rec for key in ["Ticker", "Category", "Reason"]):
+                    logger.warning(f"Skipping invalid recommendation: {rec}")
+                    continue
+
+                ticker = rec["Ticker"].upper()
+                stock_scores = score_lookup.get(ticker)
+
+                if not stock_scores:
+                    logger.warning(f"Skipping unknown ticker: {ticker}")
+                    continue
+
+                advice_list.append(Advice(
+                    ticker=ticker,
+                    category=rec["Category"],
+                    risk=stock_scores["risk"],
+                    hype=stock_scores["hype"],
+                    sentiment=stock_scores["sentiment"],
+                    reasoning=rec["Reason"]
+                ))
+            except Exception as e:
+                logger.error(f"Error processing recommendation {rec}: {str(e)}")
+                continue
+
+        logger.info(f"Successfully processed {len(advice_list)} recommendations")
+        return {"recommendations": [a.dict() for a in advice_list]}
+
+    except Exception as e:
+        logger.error(f"Final Error: {str(e)}\nFull Response: {recommendation}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Recommendation processing failed: {str(e)}"
+        )
 
 dummy_data = [
     {
