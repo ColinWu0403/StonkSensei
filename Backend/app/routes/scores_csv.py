@@ -94,12 +94,9 @@ async def get_hype_score_csv(ticker: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/risk-csv/{ticker}")
-async def get_risk_score_csv(ticker: str):
+async def get_risk_score_csv(ticker: str, sentiment_score: float):
     """Calculate risk score (combination of volatility and sentiment)"""
     try:
-        df = read_csv_data()
-        ticker_data = get_ticker_data(ticker, df)
-        
         # Step 1: Get Beta from AlphaVantage
         beta_data = get_beta(ticker)
         beta = float(beta_data["beta"])  # Extract the beta value
@@ -108,11 +105,11 @@ async def get_risk_score_csv(ticker: str):
         atr_data = get_atr(ticker, interval="monthly", time_period=60)
         atr = float(atr_data["atr"])  # Extract the ATR value
 
-        # Step 3: Get sentiment variability (placeholder for now)
-        sentiment_variability = 2.5  # Replace with actual calculation if needed
+        # Step 3: Get sentiment variability (from params)
+        sentiment_mult = (sentiment_score * 5)
         
         # Step 4: Calculate risk score
-        risk_score = (beta * 0.5) + (atr * 10) + (sentiment_variability * 5)
+        risk_score = (beta * 0.5) + (atr * 10) + sentiment_mult
         
         return {"ticker": ticker, "risk_score": round(risk_score, 2)}
     
