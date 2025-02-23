@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from ..utils.av_client import get_beta, get_atr
 from ..utils.reddit_scraper import get_reddit_engagement # doesn't exist yet
-from db.mongodb import database
+from ..db.mongodb import database
 from models import reddit
 from bson import ObjectId
 from datetime import datetime
