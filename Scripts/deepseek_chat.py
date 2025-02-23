@@ -43,31 +43,40 @@ def load_model():
     return tokenizer, model
 
 @app.function(image=image, gpu="h100", volumes={CACHE_DIR: volume}, timeout=1800)
-def generate_recommendation(user_prompt: str, stock_data: list, whitelist: list, blacklist: list, user_categories: list):
+def generate_recommendation(user_prompt: str, stock_data: list[dict], fav_category: str):
     try:
         # Load the model
         tokenizer, model = load_model()
+                
+        # Format the stats for each remaining stock:
+        # Each stock is represented as "Name (Hype: X, Risk: Y, Sentiment: Z)"
+        formatted_stats = [
+            f'{stock["ticker"]} (Hype: {stock["hype"]}, Risk: {stock["risk"]}, Sentiment: {stock["sentiment_score"]})'
+            for stock in stock_data
+        ]
         
-        category = categorize_stock(stock_data, blacklist)
-
-        search_prompt = f"""You are StonkSensei, a financial AI assistant.
-                  Please give advice on the given stock(s): {', '.join(stock_data)}.
+        stocks_info = ", ".join(formatted_stats)
+                 
+        search_prompt = f"""You are StonkSensei, a financial AI assistant. Your task is to help the user make money.
+                  Please give advice on the given stock(s): {stocks_info}.
 
                   Decision Rules:
                   {decision_tree_rules()}
 
                   User Preferences:
-                  - Whitelist: {', '.join(whitelist)}
-                  - Blacklist: {', '.join(blacklist)}
-                  - Preferred Category: {', '.join(user_categories)}
+
+                  - Preferred Category: {fav_category}
                   - User's Prompt: {user_prompt}
+                  
+                  Please get the top 3 stocks to invest in and categorize them based on the given stats and decision rules.
+                  Also, provide any general advice relevant to the user's prompt.
                   """
 
         search_inputs = tokenizer(search_prompt, return_tensors="pt").to(model.device)
         prompt_length = search_inputs.input_ids.shape[1]
         
-        max_tokens = max(512, getattr(model.config, "max_length", 512))
-        
+        max_tokens = min(512, getattr(model.config, "max_length", 1024) - prompt_length)
+                
         search_output = model.generate(
             search_inputs.input_ids,
             attention_mask=search_inputs.attention_mask,
@@ -81,8 +90,7 @@ def generate_recommendation(user_prompt: str, stock_data: list, whitelist: list,
 
         # Convert the output to JSON format
         response = {
-            "ticker": stock_data["ticker"],
-            "search_results": search_results.strip()
+            "recommendations": search_results.strip()
         }
         
         with open("/tmp/deepseek_results.json", "w") as f:
@@ -94,52 +102,18 @@ def generate_recommendation(user_prompt: str, stock_data: list, whitelist: list,
         return json.dumps({"error": str(e)})
 
 
-def categorize_stock(stock_data: dict, blacklist: list) -> str:
-    """Apply decision tree categorization based on stock data and blacklist."""
-    ticker = stock_data["ticker"]
-    if ticker in blacklist:
-        return "❌ Avoid (Blacklisted)"
-    
-    risk = stock_data["risk"]
-    sentiment = stock_data["sentiment"]
-    hype = stock_data["hype"]
-    
-    risk_level = get_risk_level(risk)
-    sentiment_level = "High" if sentiment >= 7 else "Low" if sentiment < 4 else "Medium"
-    hype_level = "High" if hype >= 6 else "Low" if hype < 3 else "Medium"
-    
-    # Decision tree implementation
-    if risk_level == "Low":
-        if sentiment_level == "High" and hype_level == "High":
-            return "✅ Strong Buy"
-        elif hype_level == "High":
-            return "❌ Avoid"
-    elif risk_level == "Medium":
-        if sentiment_level == "High" and hype_level == "Medium":
-            return "✅ Consider Buying"
-    elif risk_level == "High":
-        if sentiment_level == "High" and hype_level == "High":
-            return "⚠️ YOLO Pick"
-        elif sentiment_level == "Low" and hype_level == "Low":
-            return "❌ Avoid"
-    
-    return "⚠️ Neutral (Further Analysis Needed)"
-
-def get_risk_level(risk_score: float) -> str:
-    if risk_score < 30:
-        return "Low"
-    elif 30 <= risk_score <= 60:
-        return "Medium"
-    else:
-        return "High"
-
 def decision_tree_rules() -> str:
-    return """Decision Tree:
+    return """
+            Hype varies.
+            Risk varies.
+            Sentiment is a value from -1 to 1
             Low Risk + High Sentiment + High Hype → ✅ Strong Buy
             Low Risk + Low Sentiment + High Hype → ❌ Avoid
             Medium Risk + High Sentiment + Medium Hype → ✅ Consider Buying
             High Risk + High Sentiment + High Hype → ⚠️ YOLO Pick
-            High Risk + Low Sentiment + Low Hype → ❌ Avoid"""
+            High Risk + Low Sentiment + Low Hype → ❌ Avoid
+            """
+
 
 def clean_response(text: str) -> str:
     """Clean up LLM output by removing system tokens if any."""

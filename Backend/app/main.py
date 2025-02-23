@@ -18,7 +18,6 @@ app.include_router(sentiment.router, prefix="/sentiment", tags=["sentiment"])
 app.include_router(scores_csv.router, prefix="/scores", tags=["scores"])
 app.include_router(advice.router, prefix="/advice", tags=["advice"])
 
-
 @app.get("/")
 async def root():
     return {"message": "Stock Analysis API - See /docs for documentation"}
