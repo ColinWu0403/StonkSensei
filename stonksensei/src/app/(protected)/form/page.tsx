@@ -1,6 +1,7 @@
 "use client";
 
 import FinancialAdviceForm from "@/components/financial-advice-form";
+import { Suspense } from "react";
 
 export default function FormPage() {
   return (

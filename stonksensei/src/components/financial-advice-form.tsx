@@ -8,25 +8,51 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import FloatingPaths from "./FloatingPaths"
-import LoadingScreen from "./LoadingScreen"
+import { useRouter } from "next/navigation"
 
 export default function FinancialAdviceForm() {
-  const [riskLevel, setRiskLevel] = useState<string>("")
-  const [timeline, setTimeline] = useState<string>("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [amount, setAmount] = useState<string>("")
+  const [riskLevel, setRiskLevel] = useState<string>("Low")
+  const [timeline, setTimeline] = useState<string>("Short")
+  const [yoloFactor, setYoloFactor] = useState<number>(5)
+  const [preferences, setPreferences] = useState<string>("")
+  const router = useRouter()
 
-  const handleInvest = () => {
-    setIsLoading(true)
-    // Simulate investment process
-    setTimeout(() => {
-      setIsLoading(false)
-      // Here you would typically handle the completion of the investment process
-      // For example, show a success message or navigate to a new page
-    }, 15000) // 15 seconds of loading for demonstration
-  }
+  const handleInvest = async () => {
+    console.log(amount, riskLevel, timeline, yoloFactor, preferences);
+    try {
+      const response = await fetch(
+        "localhost:8000/advice/advice" +
+          new URLSearchParams({
+            investment_amount: amount ? amount : "0",
+            risk: riskLevel.toLowerCase(),
+            timeline: timeline.toLowerCase(),
+            yolo: yoloFactor.toString(),
+            preferences: preferences,
+          }),
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
 
-  if (isLoading) {
-    return <LoadingScreen />
+      if (!response.ok) {
+        throw new Error("Failed to fetch advice")
+      }
+
+      const data = await response.json()
+
+      // Store the advice data in localStorage
+      localStorage.setItem("investmentAdvice", JSON.stringify(data))
+
+      // Redirect to the advice output page
+      router.push("/investment-advice")
+    } catch (error) {
+      console.error("Error fetching advice:", error)
+      // Handle error, e.g., show an error message to the user
+    }
   }
 
   return (
@@ -38,7 +64,15 @@ export default function FinancialAdviceForm() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="amount">Investment Amount ($)</Label>
-            <Input id="amount" type="number" min="0.01" step="0.01" placeholder="Enter amount" />
+            <Input
+              id="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
@@ -82,8 +116,15 @@ export default function FinancialAdviceForm() {
           </div>
 
           <div className="space-y-2">
-            <Label>YOLO Factor</Label>
-            <Slider defaultValue={[5]} max={10} min={1} step={0.5} className="w-full" />
+            <Label>YOLO Factor: {yoloFactor}</Label>
+            <Slider
+              value={[yoloFactor]}
+              onValueChange={(value) => setYoloFactor(value[0])}
+              max={10}
+              min={1}
+              step={0.5}
+              className="w-full"
+            />
           </div>
 
           <div className="space-y-2">
@@ -92,6 +133,8 @@ export default function FinancialAdviceForm() {
               id="preferences"
               placeholder="Enter any other preferences"
               className="bg-neutral outline-none bg-none focus:border-white"
+              value={preferences}
+              onChange={(e) => setPreferences(e.target.value)}
             />
           </div>
         </CardContent>
