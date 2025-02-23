@@ -1,23 +1,33 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Textarea } from "@/components/ui/textarea";
-import FloatingPaths from "./FloatingPaths";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { Textarea } from "@/components/ui/textarea"
+import FloatingPaths from "./FloatingPaths"
+import LoadingScreen from "./LoadingScreen"
 
 export default function InvestmentForm() {
-  const [riskLevel, setRiskLevel] = useState<string>("");
-  const [timeline, setTimeline] = useState<string>("");
+  const [riskLevel, setRiskLevel] = useState<string>("")
+  const [timeline, setTimeline] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleInvest = () => {
+    setIsLoading(true)
+    // Simulate investment process
+    setTimeout(() => {
+      setIsLoading(false)
+      // Here you would typically handle the completion of the investment process
+      // For example, show a success message or navigate to a new page
+    }, 15000) // 15 seconds of loading for demonstration
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />
+  }
 
   return (
     <div className="flex items-center justify-center my-16 p-4">
@@ -28,13 +38,7 @@ export default function InvestmentForm() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="amount">Investment Amount ($)</Label>
-            <Input
-              id="amount"
-              type="number"
-              min="0.01"
-              step="0.01"
-              placeholder="Enter amount"
-            />
+            <Input id="amount" type="number" min="0.01" step="0.01" placeholder="Enter amount" />
           </div>
 
           <div className="space-y-2">
@@ -50,8 +54,8 @@ export default function InvestmentForm() {
                       ? level === "Low"
                         ? "bg-positive"
                         : level === "Medium"
-                        ? "bg-mid"
-                        : "bg-negative"
+                          ? "bg-mid"
+                          : "bg-negative"
                       : ""
                   }
                 >
@@ -68,9 +72,7 @@ export default function InvestmentForm() {
                 <Button
                   key={term}
                   variant={timeline === term ? "default" : "outline"}
-                  className={
-                    timeline === term ? "text-white outline outline-white" : ""
-                  }
+                  className={timeline === term ? "text-white outline outline-white" : ""}
                   onClick={() => setTimeline(term)}
                 >
                   {term}
@@ -81,13 +83,7 @@ export default function InvestmentForm() {
 
           <div className="space-y-2">
             <Label>YOLO Factor</Label>
-            <Slider
-              defaultValue={[5]}
-              max={10}
-              min={1}
-              step={0.5}
-              className="w-full"
-            />
+            <Slider defaultValue={[5]} max={10} min={1} step={0.5} className="w-full" />
           </div>
 
           <div className="space-y-2">
@@ -100,10 +96,13 @@ export default function InvestmentForm() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full text-black bg-positive">Invest</Button>
+          <Button className="w-full text-black bg-positive" onClick={handleInvest}>
+            Invest
+          </Button>
         </CardFooter>
       </Card>
-      <FloatingPaths position={-1}/>
+      <FloatingPaths position={-1} />
     </div>
-  );
+  )
 }
+

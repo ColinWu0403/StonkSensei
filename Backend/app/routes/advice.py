@@ -1,20 +1,26 @@
 from fastapi import APIRouter, HTTPException, Query
-from ..utils.av_client import get_company_overview, get_beta, get_atr, get_sentiment, get_news
+from ..utils.av_client import get_company_overview, get_price
+import scores_csv
+import stocks
 
 router = APIRouter()
 
 dummy_data = [
     {
+        "company": "Gamestop",
+        "price": 1,
         "ticker": "GME",
         "category": "Yolo",
         "reasoning": "According to WallStreetBets, GameStop is going to the moon! Buy now!",
         "links": ["https://www.reddit.com/r/wallstreetbets/comments/167610g/most_anticipated_earning_gamestop/"],
-        "risk": 100,
+        "risk": 50,
         "hype": 100,
         "sentiment": 75,
         "final_score": 30,
     },
     {
+        "company": "Amazon",
+        "price": 250,
         "ticker": "AMZN",
         "category": "Good trade",
         "reasoning": "Amazon is doing very well right now, and congress seems to agree!",
@@ -28,6 +34,8 @@ dummy_data = [
         "final_score": 80,
     },
     {
+        "company": "AMD",
+        "price": 100,
         "ticker": "AMD",
         "category": "Bad trade",
         "reasoning": "AMD? More like always money down. You WILL loose money by buying this.",
@@ -47,4 +55,26 @@ async def get_advice(
     yolo: int = Query(..., ge=1, le=10),
     preferences: str = Query(""),
 ):
-    return dummy_data
+    tickers = [] # Not implemented
+    category = "" # Not implemented
+    reasoning = "" # Not implemented
+    final_score = -1 # Not implemented
+    res = []
+    for ticker in tickers:
+        company_info = get_company_overview(ticker)
+        price_info = get_price(ticker)
+        curr_res = {
+            "company": company_info["Name"],
+            "price": price_info["05. price"],
+            "ticker": ticker,
+            "category": category,
+            "reasoning": reasoning,
+            "links": stocks.get_news_articles(ticker),
+            "risk": scores_csv.get_risk_score_csv(ticker),
+            "hype": scores_csv.get_hype_score_csv(ticker),
+            "sentiment": scores_csv.get_sentiment_score_csv(ticker),
+            "final_score": final_score,
+        }
+        res.append(curr_res.copy())
+
+    return res

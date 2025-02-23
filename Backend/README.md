@@ -32,11 +32,17 @@
 #### Install Dependencies:
 
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 #### Run Backend:
 
 ```
 uvicorn app.main:app --reload
+```
+
+### Test endpoints (with Swagger):
+
+```
+http://127.0.0.1:8000/docs
 ```

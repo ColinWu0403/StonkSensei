@@ -19,8 +19,9 @@ StonkSensei is a next-gen stock analysis platform that:
 ## ⚙️ How we built it
 Tech Stack
 - Frontend: React/Next.js (TypeScript) + Tailwind CSS
-- Backend: FastAPI + Python 3.11 async workers
+- Backend: FastAPI
 - ML Pipeline:
+  - Pandas for data cleaning
   - FinBERT and FinTwitBERT for sentiment analysis
   - Custom hype/risk scoring algorithms
   - DeepSeek-7B for natural language insights

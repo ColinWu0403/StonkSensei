@@ -51,8 +51,23 @@ def get_sentiment(ticker: str, num_articles: int):
     response = requests.get(url)
     response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
     data = response.json()
-    data.pop("feed", None) # only return sentiment data
-    return data
+
+    # get average sentiment score (sum of all sentiment scores times relevance scores / number of articles)
+    num_articles = int(data["items"])
+    articles = data["feed"]
+
+    summation = 0.0
+    for article in articles:
+        for ticker_scores in article["ticker_sentiment"]:
+            if ticker_scores["ticker"] == ticker:
+                relevance = float(ticker_scores["relevance_score"])
+                sentiment = float(ticker_scores["ticker_sentiment_score"])
+                summation += relevance * sentiment
+
+    avg_sentiment = summation / num_articles
+    
+    return {"sentiment": avg_sentiment}
+
 
 def get_news(ticker: str, num_articles: int):
     """
@@ -63,3 +78,13 @@ def get_news(ticker: str, num_articles: int):
     response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
     data = response.json()
     return data.get("feed") # only return news articles
+
+def get_price(ticker: str):
+    """
+    Get stock price
+    """
+    url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={ticker}&apikey={API_KEY}'
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+    return data
