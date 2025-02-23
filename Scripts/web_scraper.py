@@ -5,9 +5,10 @@ from bs4 import BeautifulSoup
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.by import By
 from fake_useragent import UserAgent
+import csv
 
 URL = "https://www.reddit.com/r/wallstreetbets/top/?t=month"
-SCROLL_PAUSE_TIME = 2
+SCROLL_PAUSE_TIME = 5
 NUM_SCROLLS = 2
 SLEEP_MS = 0
 
@@ -77,11 +78,11 @@ def scrape_post(url):
     
     # Extract post
     result = soup.find_all('p')
-    sentences = []
+    body = ""
     for i in range(18, len(result)):
         if result[i].text == "Post a comment!":
             break
-        sentences.append(result[i].text)
+        body += result[i].text
 
     # Extract upvotes
     result = soup.find('div', class_="score")
@@ -89,22 +90,25 @@ def scrape_post(url):
 
     # Extract comment count
     result = soup.find('div', class_="commentarea")
-    comment_text = result.find('span', class_="title").text
-    num_comments = comment_text.split()[1]
+    comment = result.find('a', class_="title-button")
+    num_comments = 0
+    if not comment:
+        comment = result.find('span', class_="title")
+        num_comments = comment.text.split()[1]
+    else:
+        num_comments = comment.text.split()[-1]
 
     return {
         'title': post_title,
-        'body': sentences,
-        'upvotes': upvotes,
-        'num_comments': num_comments,
+        'body': body,
+        'upvotes': int(upvotes.replace(",", "")),
+        'num_comments': int(num_comments),
     }
     
-
-# Tests for script
-#time.sleep(2)
-#print(scrape_post("https://old.reddit.com/r/wallstreetbets/comments/1igaaox/deepseek_reportedly_has_50000_nvidia_gpus_and/"))
-#time.sleep(2)
-#print(scrape_post("https://old.reddit.com/r/wallstreetbets/comments/1ip9ns8/flip_it/"))
 urls = scrape_urls()
 posts = scrape_posts(urls)
-print(posts)
+
+with open("output.csv", "w", newline="") as file:
+    writer = csv.DictWriter(file, fieldnames=posts[0].keys())
+    writer.writeheader()
+    writer.writerows(posts)

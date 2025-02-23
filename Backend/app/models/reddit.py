@@ -3,7 +3,6 @@ from typing import Optional
 from datetime import datetime
 
 class RedditStockMention(BaseModel):
-    stock_name: str
     ticker: str
     mentions_count: int
     total_upvotes: int

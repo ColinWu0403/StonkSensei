@@ -88,13 +88,13 @@ def scrape_post(url):
 
     # Extract comment count
     result = soup.find('div', class_="commentarea")
-    comment_text = result.find('span', class_="title").text
-    num_comments = comment_text.split()[1]
+    comment_text = result.find('a', class_="title-button").text
+    num_comments = comment_text.split()[2]
 
     return {
         'text': post_title + body,
-        'upvotes': upvotes,
-        'num_comments': num_comments,
+        'upvotes': int(upvotes.replace(",", "")),
+        'num_comments': int(num_comments.replace(",", "")),
         'error': False,
     }
     
