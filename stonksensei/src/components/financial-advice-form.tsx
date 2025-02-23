@@ -13,21 +13,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import FloatingPaths from "./FloatingPaths";
 
 export default function InvestmentForm() {
   const [riskLevel, setRiskLevel] = useState<string>("");
   const [timeline, setTimeline] = useState<string>("");
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-md bg-neutral-light">
+    <div className="flex items-center justify-center my-16 p-4">
+      <Card className="w-full max-w-md bg-neutral-light border-none z-10">
         <CardHeader>
           <CardTitle>Investment Form</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="amount">Investment Amount ($)</Label>
-            <Input id="amount" type="number" placeholder="Enter amount" />
+            <Input
+              id="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="Enter amount"
+            />
           </div>
 
           <div className="space-y-2">
@@ -38,6 +45,15 @@ export default function InvestmentForm() {
                   key={level}
                   variant={riskLevel === level ? "default" : "outline"}
                   onClick={() => setRiskLevel(level)}
+                  className={
+                    riskLevel === level
+                      ? level === "Low"
+                        ? "bg-positive"
+                        : level === "Medium"
+                        ? "bg-mid"
+                        : "bg-negative"
+                      : ""
+                  }
                 >
                   {level}
                 </Button>
@@ -52,6 +68,9 @@ export default function InvestmentForm() {
                 <Button
                   key={term}
                   variant={timeline === term ? "default" : "outline"}
+                  className={
+                    timeline === term ? "text-white outline outline-white" : ""
+                  }
                   onClick={() => setTimeline(term)}
                 >
                   {term}
@@ -66,7 +85,7 @@ export default function InvestmentForm() {
               defaultValue={[5]}
               max={10}
               min={1}
-              step={1}
+              step={0.5}
               className="w-full"
             />
           </div>
@@ -76,13 +95,15 @@ export default function InvestmentForm() {
             <Textarea
               id="preferences"
               placeholder="Enter any other preferences"
+              className="bg-neutral outline-none bg-none focus:border-white"
             />
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full">Invest</Button>
+          <Button className="w-full text-black bg-positive">Invest</Button>
         </CardFooter>
       </Card>
+      <FloatingPaths position={-1} />
     </div>
   );
 }
