@@ -43,7 +43,7 @@ def load_model():
     return tokenizer, model
 
 @app.function(image=image, gpu="h100", volumes={CACHE_DIR: volume}, timeout=1800)
-def generate_recommendation(user_prompt: str, stock_data: list[dict], fav_category: str):
+def generate_recommendation(user_prompt: str, stock_data: list[dict], amount: str, user_risk: str):
     try:
         # Load the model
         tokenizer, model = load_model()
@@ -64,12 +64,16 @@ def generate_recommendation(user_prompt: str, stock_data: list[dict], fav_catego
                   {decision_tree_rules()}
 
                   User Preferences:
-
-                  - Preferred Category: {fav_category}
+                  - Investment Amount: {amount}
+                  - Preferred Categories: {user_risk}
                   - User's Prompt: {user_prompt}
                   
                   Please get the top 3 stocks to invest in and categorize them based on the given stats and decision rules.
-                  Also, provide any general advice relevant to the user's prompt.
+
+                  Can you give me a list of JSON objects with only these entries per object so I can directly send this to my API:
+                  - Ticker
+                  - Category (⚠️ YOLO Pick, ✅ Consider Buying, ✅ Strong Buy)
+                  - Reason (This is general advice on why this stock might be worth investing)
                   """
 
         search_inputs = tokenizer(search_prompt, return_tensors="pt").to(model.device)
