@@ -32,21 +32,7 @@ function getGradientColor(value: number) {
   return `rgb(${red}, ${green}, 100)`;
 }
 
-export function VaultTable() {
-  const [advice, setAdvice] = useState<Advice[]>([]);
-
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetch(
-        "http://localhost:8000/advice/advice?investment_amount=1000&risk=medium&timeline=short&yolo=7&preferences=nothing"
-      );
-      const data = (await response.json()) as Advice[];
-      setAdvice(data);
-    }
-
-    fetchData();
-  }, []);
-
+export function VaultTable({ advice }: { advice: Advice[] }) {
   return (
     <Table>
       <TableHeader>
