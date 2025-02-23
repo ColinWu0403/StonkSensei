@@ -78,3 +78,13 @@ def get_news(ticker: str, num_articles: int):
     response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
     data = response.json()
     return data.get("feed") # only return news articles
+
+def get_price(ticker: str):
+    """
+    Get stock price
+    """
+    url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={ticker}&apikey={API_KEY}'
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+    return data

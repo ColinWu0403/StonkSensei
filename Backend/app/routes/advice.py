@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from ..utils.av_client import get_company_overview, get_beta, get_atr, get_sentiment, get_news
+from ..utils.av_client import get_company_overview, get_price
 import scores_csv
 import stocks
 
@@ -13,14 +13,14 @@ dummy_data = [
         "category": "Yolo",
         "reasoning": "According to WallStreetBets, GameStop is going to the moon! Buy now!",
         "links": ["https://www.reddit.com/r/wallstreetbets/comments/167610g/most_anticipated_earning_gamestop/"],
-        "risk": 100,
+        "risk": 50,
         "hype": 100,
         "sentiment": 75,
         "final_score": 30,
     },
     {
         "company": "Amazon",
-        "price": 2.50,
+        "price": 250,
         "ticker": "AMZN",
         "category": "Good trade",
         "reasoning": "Amazon is doing very well right now, and congress seems to agree!",
@@ -35,7 +35,7 @@ dummy_data = [
     },
     {
         "company": "AMD",
-        "price": 10,
+        "price": 100,
         "ticker": "AMD",
         "category": "Bad trade",
         "reasoning": "AMD? More like always money down. You WILL loose money by buying this.",
@@ -62,9 +62,10 @@ async def get_advice(
     res = []
     for ticker in tickers:
         company_info = get_company_overview(ticker)
+        price_info = get_price(ticker)
         curr_res = {
             "company": company_info["Name"],
-            "price": company_info[""],
+            "price": price_info["05. price"],
             "ticker": ticker,
             "category": category,
             "reasoning": reasoning,
