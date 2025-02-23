@@ -8,20 +8,11 @@ export default function FormHeader({ user }: User) {
           <div className="flex justify-start items-center lg:w-0 lg:flex-1">
             <Link href="/">
               <span className="sr-only">StonkSensei</span>
-              <svg
-                className="h-8 w-auto sm:h-10"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M13.5 6L10 18.5M6.5 8.5L3 12L6.5 15.5M17.5 8.5L21 12L17.5 15.5"
-                  stroke="#FFFFFF"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <img
+                src={"stonks.png"}
+                alt="Stonks"
+                className="h-12 w-auto sm:h-12"
+              />
             </Link>
           </div>
 
