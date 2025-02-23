@@ -7,14 +7,11 @@ import { MovingBackground } from "@/components/MovingBackground";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen relative z-10">
+    <div className="flex flex-col min-h-[90vh] relative z-10">
       <MovingBackground />
       <Header />
-      <main className="flex-grow relative z-10">
+      <main className="flex-grow h-[90vh] relative z-10">
         <Hero />
-        <div className="bg-gray-900">
-          <Features />
-        </div>
       </main>
     </div>
   );
